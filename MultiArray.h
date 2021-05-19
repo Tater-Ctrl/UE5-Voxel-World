@@ -29,6 +29,11 @@ public:
 		this->Columns = Y;
 	}
 
+	int operator[](int index)
+	{
+		return Array[index];
+	}
+
 	int Get(const int X, const int Y, const int Z)
 	{
 		// Check if array is out of bounds and return if it is

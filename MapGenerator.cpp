@@ -3,8 +3,6 @@
 
 #include "MapGenerator.h"
 
-#include "InputBehavior.h"
-
 // Sets default values
 AMapGenerator::AMapGenerator()
 {
@@ -73,7 +71,7 @@ void AMapGenerator::DestroyChunks()
 
 void AMapGenerator::DrawChunk(const FVector2D Pos)
 {
-	AChunk* newChunk = GetWorld()->SpawnActor<AChunk>(FVector(Pos.X * 960 + 480, Pos.Y * 960 + 480, 60 * 128), FRotator(0.f, 0.f, 0.f));
+	AChunk* newChunk = GetWorld()->SpawnActor<AChunk>(FVector(Pos.X * 960, Pos.Y * 960, 0), FRotator(0.f, 0.f, 0.f));
 	// Assign the X, Y, Z width pointers of chunk
 	newChunk->chunkX = &this->ChunkX; newChunk->chunkY = &this->ChunkY;	newChunk->chunkZ = &this->ChunkZ;
 	newChunk->chunkID = Pos;
@@ -92,6 +90,7 @@ void AMapGenerator::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Success!"));
 	}
+
 	InitChunks();
 }
 
