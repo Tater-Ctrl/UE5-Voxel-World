@@ -31,7 +31,7 @@ public:
 
     // Fractal/Fractional Brownian Motion (fBm) noise summation
     float fractal(size_t octaves, float x) const;
-    float fractal(size_t octaves, float x, float y) const;
+    float fractal2D(size_t octaves, float scale, float x, float y) const;
     float fractal(size_t octaves, float x, float y, float z) const;
 
     /**

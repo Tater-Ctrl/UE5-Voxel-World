@@ -60,6 +60,12 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable, Category="Chunk Editing")
+	void BreakBlock(FVector Position, FVector2D ChunkID);
+	UFUNCTION(BlueprintCallable, Category="Chunk Editing")
+	void PlaceBlock(FVector Position, FVector2D ChunkID);
+
+	void EditorDrawChunk(const FVector2D Pos);
 	void DrawChunk(const FVector2D Pos);
 	void UpdateChunks(FVector2D Pos);
 };

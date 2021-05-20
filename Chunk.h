@@ -9,8 +9,6 @@
 #include "MultiArray.h"
 #include "Chunk.generated.h"
 
-DECLARE_DELEGATE(DelegateDraw)
-
 UCLASS()
 class PROCMAP_API AChunk : public AActor
 {
@@ -20,7 +18,6 @@ private:
 	TArray<FProcMeshTangent> tangents;
 	TArray<FLinearColor> vertexColors;
 	
-	int CheckNeighbour(int X, int Y, int Z);
 	int CheckNeighbourChunk(int X, int Y, int Z, int IdX, int IdY);
 	
 public:	
@@ -42,11 +39,11 @@ public:
 	UPROPERTY(EditAnywhere, Category="Distance to Player")
 	int ChunkDistance = 0;
 
+	void UpdateChunkMesh();
+
 	FMultiArray* noise;
 	
 	TMap<FVector2D, FMultiArray>* NoiseMap;
-
-	DelegateDraw Draw;
 
 	void DrawChunk() const;
 	void CreateChunk();

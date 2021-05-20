@@ -12,8 +12,6 @@ AChunk::AChunk()
 	noise = nullptr;
 	cube = new ACreateCube();
 
-	Draw.BindUObject(this, &AChunk::CreateChunk);
-
 	// Colors for some reason?
 	vertexColors.Init(FLinearColor(0.0f,0.0f,0.0f,1.0f), 3);
 
@@ -24,42 +22,22 @@ AChunk::AChunk()
 	pm->bUseAsyncCooking = true;
 }
 
-int AChunk::CheckNeighbour(int X, int Y, int Z)
-{
-	const int Value = noise->Get(X, Y);
-
-	if(Value < 0) return -1;
-	
-	if(Z <= Value)
-	{
-		return 1;
-	}
-	
-	if(Z > Value)
-	{
-		return 0;
-	}
-	else
-	{
-		return -1;
-	}
-}
-
 int AChunk::CheckNeighbourChunk(int X, int Y, int Z, int IdX, int IdY)
 {
-	int Value = NoiseMap->operator[](FVector2D(IdX, IdY)).Get(X, Y);
+	int Value = NoiseMap->operator[](FVector2D(IdX, IdY)).Get(X, Y, Z);
 	
-	if(Value < Z)
-	{
-		return 0;
-	}
-	
-	return -1;
+	return Value;
 }
 
 void AChunk::DrawChunk() const 
 {
 	pm->CreateMeshSection_LinearColor(0, cube->vertices, cube->triangles, cube->normals, cube->uvs, vertexColors, tangents, true);
+}
+
+void AChunk::UpdateChunkMesh()
+{
+	pm->ClearMeshSection(0);
+	CreateChunk();
 }
 
 void AChunk::CreateChunk()
@@ -74,23 +52,27 @@ void AChunk::CreateChunk()
 		{
 			for(int z = 0; z < *this->chunkZ; ++z)
 			{				
-				if(this->CheckNeighbour(x, y, z) == 0) continue;
-
-				CheckNeighbour(x, y, z + 1 ) == BlockType::Air ? cube->BlockVariations(BlockType::Grass) : cube->BlockVariations(BlockType::Dirt);
+				if(noise->Get(x, y, z) == 0) continue;
+				
+				noise->Get(x, y, z + 1 ) == BlockType::Air ? cube->BlockVariations(BlockType::Grass) : cube->BlockVariations(BlockType::Dirt);
 				
 				// Draw top of block
-				if(this->CheckNeighbour(x, y, z + 1) == 0)
+				if(noise->Get(x, y, z + 1) == BlockType::Air)
 				{
 					cube->Top(x, y, z );
 				}
-
+				if(noise->Get(x, y, z - 1) == BlockType::Air)
+				{
+					cube->Bottom(x, y, z);
+				}
+				
 				// Draw front of block
-				if(CheckNeighbour(x, y + 1, z) == BlockType::Air)
+				if(noise->Get(x, y + 1, z) == BlockType::Air)
 				{
 					cube->Front(x, y, z);
 				}
 				// Check neighbour chunk if it has a block or not
-				else if(CheckNeighbour(x, y + 1, z) == -1 && NoiseMap->Find(FVector2D(chunkID.X, chunkID.Y + 1)))
+				else if(noise->Get(x, y + 1, z) < BlockType::Air && NoiseMap->Find(FVector2D(chunkID.X, chunkID.Y + 1)))
 				{
 					// if neighbour block is Air, display tile face
 					if(CheckNeighbourChunk(x, 0, z, chunkID.X, chunkID.Y + 1) == BlockType::Air)
@@ -100,12 +82,12 @@ void AChunk::CreateChunk()
 				}
 
 				// Draw back of block
-				if(CheckNeighbour(x, y - 1, z) == BlockType::Air)
+				if(noise->Get(x, y - 1, z) == BlockType::Air)
 				{
 					cube->Back(x, y, z);
 				}
 				// Check neighbour chunk if it has a block or not
-				else if(CheckNeighbour(x, y - 1, z) < BlockType::Air && NoiseMap->Find(FVector2D(chunkID.X, chunkID.Y - 1)))
+				else if(noise->Get(x, y - 1, z) < BlockType::Air && NoiseMap->Find(FVector2D(chunkID.X, chunkID.Y - 1)))
 				{
 					// if neighbour chunk block is Air, display tile face
 					if(CheckNeighbourChunk(x, *chunkY - 1, z, chunkID.X, chunkID.Y - 1) == BlockType::Air)
@@ -113,12 +95,12 @@ void AChunk::CreateChunk()
 				}
 				
 				// Draw left of block
-				if(CheckNeighbour(x + 1, y, z) == BlockType::Air)
+				if(noise->Get(x + 1, y, z) == BlockType::Air)
 				{
 					cube->Left(x, y, z);
 				}
 				// Check neighbour chunk if it has a block or not
-				else if(CheckNeighbour(x + 1, y, z) < BlockType::Air && NoiseMap->Find(FVector2D(chunkID.X + 1, chunkID.Y)))
+				else if(noise->Get(x + 1, y, z) < BlockType::Air && NoiseMap->Find(FVector2D(chunkID.X + 1, chunkID.Y)))
 				{
 					// if neighbour chunk block is Air, display tile face
 					if(CheckNeighbourChunk(0, y, z, chunkID.X + 1, chunkID.Y) == BlockType::Air)
@@ -126,13 +108,13 @@ void AChunk::CreateChunk()
 				}
 				
 				// Draw right of block
-				if(CheckNeighbour(x - 1, y, z) == BlockType::Air)
+				if(noise->Get(x - 1, y, z) == BlockType::Air)
 				{
 					// if neighbour chunk block is Air, display tile face
 					cube->Right(x, y, z);
 				}
 				// Check neighbour chunk if it has a block or not
-				else if(CheckNeighbour(x - 1, y, z) < BlockType::Air && NoiseMap->Find(FVector2D(chunkID.X - 1, chunkID.Y)))
+				else if(noise->Get(x - 1, y, z) < BlockType::Air && NoiseMap->Find(FVector2D(chunkID.X - 1, chunkID.Y)))
 				{
 					// if neighbour chunk block is Air, display tile face
 					if(CheckNeighbourChunk(*chunkX - 1, y, z, chunkID.X - 1, chunkID.Y) == BlockType::Air)
