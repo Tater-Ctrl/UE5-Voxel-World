@@ -42,6 +42,7 @@ public:
 	UPROPERTY(EditAnywhere, Category="Distance to Player")
 	int ChunkDistance = 0;
 
+	void SetBlockType(int Sum);
 	void UpdateChunkMesh();
 
 	FMultiArray* noise;

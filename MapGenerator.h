@@ -7,11 +7,9 @@
 #include "Chunk.h"
 #include "Kismet/GameplayStatics.h"
 #include "SimplexNoise.h"
-#include "Curves/CurveFloat.h"
+#include "CaveGenerator.h"
+#include "BlockEditor.h"
 #include "MapGenerator.generated.h"
-
-DECLARE_DELEGATE_OneParam(D_CreateChunkPool, FVector2D)
-DECLARE_DELEGATE_OneParam(D_HideChunkPool, FVector2D)
 
 UCLASS()
 class PROCMAP_API AMapGenerator : public AActor
@@ -22,6 +20,8 @@ private:
 	void CreateChunk(FVector2D Pos);
 	TQueue<AChunk*, EQueueMode::Mpsc> CreateChunkQueue;
 	TQueue<AChunk*, EQueueMode::Mpsc> HideChunkQueue;
+
+	CaveGenerator* CaveGen;
 
 	void CreateChunkNoise(FVector2D Pos);
 	
@@ -45,15 +45,16 @@ public:
 	TMap<FVector2D, AChunk*> Chunks;
 
 	SimplexNoise* Simplex;
-	
+	ABlockEditor* BlockEditor;
 	ACreateCube* Cube;
+	
 	UPROPERTY()
 	UMaterialInterface* TextureAtlas;
 	UPROPERTY()
 	AActor* Player;
 	
 	FVector2D ChunkPosition;
-
+	
 	UFUNCTION(CallInEditor, Category="Chunk Parameters")
 	void InitChunks();
 	
@@ -62,8 +63,7 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
-
-	void UpdateSurroundingChunkBlocks(FVector2D ChunkID, FVector Position);
+	
 	UFUNCTION(BlueprintCallable, Category="Chunk Editing")
 	void BreakBlock(FVector Position, FVector2D ChunkID);
 	UFUNCTION(BlueprintCallable, Category="Chunk Editing")

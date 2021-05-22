@@ -3,24 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MultiArray.h"
 #include "SimplexNoise.h"
 
 /**
  * 
  */
-class PROCMAP_API CaveGenerator
+struct CaveGenerator
 {
 public:
 	CaveGenerator();
-
-	TArray<FVector2D, FMultiArray> CaveNoise;
+	
 	SimplexNoise* Simplex;
-	int* ChunkX;
-	int* ChunkY;
-	int* ChunkZ;
 
-	void GenerateCaveNoise();
+	float GenerateCaveNoise(FVector Pos);
 	
 	~CaveGenerator();
 };

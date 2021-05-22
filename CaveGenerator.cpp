@@ -5,20 +5,14 @@
 
 CaveGenerator::CaveGenerator()
 {
+	Simplex = new SimplexNoise();
 }
 
-void CaveGenerator::GenerateCaveNoise()
+float CaveGenerator::GenerateCaveNoise(FVector Pos)
 {
-	for(int X = 0; X < *ChunkX; ++X)
-	{
-		for(int Y = 0; Y < *ChunkY; ++Y)
-		{
-			for(int Z = 0; Z < *ChunkZ; ++Z)
-			{
-				const int Height = Simplex->fractal3D(1, 0.05f, X, Y, Z);
-			}
-		}
-	}
+	float Height = (Simplex->fractal3D(1, 0.0001f, Pos.X, Pos.Y, Pos.Z));
+
+	return Height;
 }
 
 CaveGenerator::~CaveGenerator()

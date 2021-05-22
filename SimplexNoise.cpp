@@ -447,8 +447,6 @@ float SimplexNoise::fractal2D(size_t octaves, float scale, float x, float y) con
         amplitude *= mPersistence;
     }
 
-    //UE_LOG(LogTemp, Warning, TEXT("%f"), output / denom);
-
     return (output / denom);
 }
 
@@ -469,7 +467,7 @@ float SimplexNoise::fractal3D(size_t octaves, float scale, float x, float y, flo
     float amplitude = mAmplitude;
 
     for (size_t i = 0; i < octaves; i++) {
-        output += (amplitude * noise((x * frequency) * scale, (y * frequency) * scale, (z * frequency) * scale));
+        output += (amplitude * noise(x * scale * frequency, y * scale * frequency, z * scale * frequency));
         denom += amplitude;
 
         frequency *= mLacunarity;

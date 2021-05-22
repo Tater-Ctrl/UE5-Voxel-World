@@ -14,16 +14,22 @@ void ACreateCube::BlockVariations(BlockType blockType)
 	switch(blockType)
 	{
 		case BlockType::Grass:
-			top = 2; side = 0; bottom = 1; offset = 0;
+			top = 0; side = 0; bottom = 0; offset = 0;
 		break;
 		case BlockType::Dirt:
 			top = 1; side = 1; bottom = 1; offset = 0;
 		break;
-		case BlockType::Bedrock:
+		case BlockType::Stone:
 			top = 3; side = 3; bottom = 3; offset = 0;
 		break;
+		case BlockType::Bedrock:
+			top = 4; side = 4; bottom = 4; offset = 0;
+		break;
 		case BlockType::Water:
-			top = 4; side = 4; bottom = 4; offset = 15;
+			top = 5; side = 5; bottom = 5; offset = 15;
+		break;
+		case BlockType::Sand:
+			top = 6; side = 6; bottom = 6; offset = 0;
 		break;
 		default:
 			top = 1; side = 1; bottom = 1; offset = 0;

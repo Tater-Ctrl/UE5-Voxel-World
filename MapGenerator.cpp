@@ -10,10 +10,10 @@ AMapGenerator::AMapGenerator()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Simplex = new SimplexNoise();
+	CaveGen = new CaveGenerator();
+	BlockEditor = new ABlockEditor(&NoiseMap, &Chunks, &ChunkX, &ChunkY, &ChunkZ);
+	
 	TextureAtlas = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Texture_Atlas/Atlas_M.Atlas_M"));
-	//MapCurve = LoadObject<UCurveFloat>(nullptr, TEXT("/Game/TerrainCurve"));
-
-	//if(!MapCurve) UE_LOG(LogTemp, Warning, TEXT("Didn't find Map Curve"));
 }
 
 void AMapGenerator::InitChunks()
@@ -39,20 +39,23 @@ void AMapGenerator::InitChunks()
 
 void AMapGenerator::CreateChunk(const FVector2D Pos)
 {
-	if(!NoiseMap.Find(FVector2D(Pos.X + 1, Pos.Y))) CreateChunkNoise(FVector2D(Pos.X + 1, Pos.Y));
-	if(!NoiseMap.Find(FVector2D(Pos.X - 1, Pos.Y))) CreateChunkNoise(FVector2D(Pos.X - 1, Pos.Y));
-	if(!NoiseMap.Find(FVector2D(Pos.X, Pos.Y + 1))) CreateChunkNoise(FVector2D(Pos.X, Pos.Y + 1));
-	if(!NoiseMap.Find(FVector2D(Pos.X, Pos.Y - 1))) CreateChunkNoise(FVector2D(Pos.X, Pos.Y - 1));
-
-	if(!NoiseMap.Find(Pos))
+	AsyncTask(ENamedThreads::BackgroundThreadPriority, [=] ()
 	{
-		CreateChunkNoise(Pos);
+		if(!NoiseMap.Find(FVector2D(Pos.X + 1, Pos.Y))) CreateChunkNoise(FVector2D(Pos.X + 1, Pos.Y));
+		if(!NoiseMap.Find(FVector2D(Pos.X - 1, Pos.Y))) CreateChunkNoise(FVector2D(Pos.X - 1, Pos.Y));
+		if(!NoiseMap.Find(FVector2D(Pos.X, Pos.Y + 1))) CreateChunkNoise(FVector2D(Pos.X, Pos.Y + 1));
+		if(!NoiseMap.Find(FVector2D(Pos.X, Pos.Y - 1))) CreateChunkNoise(FVector2D(Pos.X, Pos.Y - 1));
+		
+		if(!NoiseMap.Find(Pos))
+		{
+			CreateChunkNoise(Pos);
+		}
 
-		this->DrawChunk(Pos);
-	} else
-	{
-		this->DrawChunk(Pos);
-	}
+		AsyncTask(ENamedThreads::GameThread, [=]()
+		{
+			this->DrawChunk(Pos);
+		});
+	});
 }
 
 void AMapGenerator::CreateChunkNoise(FVector2D Pos)
@@ -64,114 +67,26 @@ void AMapGenerator::CreateChunkNoise(FVector2D Pos)
 		for(int Y = 0; Y < this->ChunkY; ++Y)
 		{
 			const int Height = ((this->Simplex->fractal2D(4, 0.004f, X + (Pos.X * this->ChunkX), Y + (Pos.Y * this->ChunkY))) + 1) * (this->ChunkZ / 2);
-			const int Height2 = ((this->Simplex->fractal2D(1, 0.01f, X + (Pos.X * this->ChunkX), Y + (Pos.Y * this->ChunkY)) + 1)) * (this->ChunkZ / 2);
-			
-			const int Sum = floor(MapCurve->GetFloatValue((Height + Height2) / 2)) + 30;
-			
+			const int Sum = floor(MapCurve->GetFloatValue(Height)) + 30;
+
 			for(int Z = 0; Z < Sum; ++Z)
 			{
-				Arr.Set(X, Y, Z, 1);
+				Arr.Set(X, Y, Z, Sum);
 			}
 		}
 	}
 	this->NoiseMap.Add(Pos, Arr);
 }
 
-void AMapGenerator::BreakBlock(FVector Position, FVector2D ChunkID)
+void AMapGenerator::BreakBlock(const FVector Position, const FVector2D ChunkID)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ChunkID.X = %f, ChunkID.Y = %f"), ChunkID.X, ChunkID.Y);
-	if(NoiseMap.Find(ChunkID))
-	{
-		if(Position.Z == 0) return;
-		if(NoiseMap[ChunkID].Get(Position) >= 0)
-		{
-			NoiseMap[ChunkID].Set(Position.X, Position.Y, Position.Z, 0);
-
-			UpdateSurroundingChunkBlocks(ChunkID, Position);
-		
-			Chunks[ChunkID]->UpdateChunkMesh();
-		} else
-		{
-			if(Position.X >= ChunkX)
-			{
-				NoiseMap[FVector2D(ChunkID.X + 1, ChunkID.Y)].Set(0, Position.Y, Position.Z, 0);
-				UpdateSurroundingChunkBlocks(ChunkID, Position);
-				Chunks[FVector2D(ChunkID.X + 1, ChunkID.Y)]->UpdateChunkMesh();
-				Chunks[ChunkID]->UpdateChunkMesh();
-			}
-			if(Position.X < 0)
-			{
-				NoiseMap[FVector2D(ChunkID.X - 1, ChunkID.Y)].Set(ChunkX - 1, Position.Y, Position.Z, 0);
-				UpdateSurroundingChunkBlocks(ChunkID, Position);
-				Chunks[FVector2D(ChunkID.X - 1, ChunkID.Y)]->UpdateChunkMesh();
-				Chunks[ChunkID]->UpdateChunkMesh();
-			}
-			if(Position.Y >= ChunkY)
-			{
-				NoiseMap[FVector2D(ChunkID.X, ChunkID.Y + 1)].Set(Position.X, 0, Position.Z, 0);
-				UpdateSurroundingChunkBlocks(ChunkID, Position);
-				Chunks[FVector2D(ChunkID.X, ChunkID.Y + 1)]->UpdateChunkMesh();
-				Chunks[ChunkID]->UpdateChunkMesh();
-			}
-			if(Position.Y < 0)
-			{
-				NoiseMap[FVector2D(ChunkID.X, ChunkID.Y - 1)].Set(Position.X, ChunkY - 1, Position.Z, 0);
-				UpdateSurroundingChunkBlocks(ChunkID, Position);
-				Chunks[FVector2D(ChunkID.X, ChunkID.Y - 1)]->UpdateChunkMesh();
-				Chunks[ChunkID]->UpdateChunkMesh();
-			}
-		}
-	}
+	BlockEditor->BreakBlock(Position, ChunkID);
 }
 
-void AMapGenerator::PlaceBlock(FVector Position, FVector2D ChunkID)
+void AMapGenerator::PlaceBlock(const FVector Position, const FVector2D ChunkID)
 {
-	if(NoiseMap.Find(ChunkID))
-	{
-		if(NoiseMap[ChunkID].Get(Position) >= 0)
-		{
-			NoiseMap[ChunkID].Set(Position.X, Position.Y, Position.Z, 1);
-			UpdateSurroundingChunkBlocks(ChunkID, Position);
-			Chunks[ChunkID]->UpdateChunkMesh();
-		} else
-		{
-			if(Position.X >= ChunkX)
-			{
-				NoiseMap[FVector2D(ChunkID.X + 1, ChunkID.Y)].Set(0, Position.Y, Position.Z, 1);
-				Chunks[FVector2D(ChunkID.X + 1, ChunkID.Y)]->UpdateChunkMesh();
-				Chunks[ChunkID]->UpdateChunkMesh();
-			}
-			if(Position.X < 0)
-			{
-				NoiseMap[FVector2D(ChunkID.X - 1, ChunkID.Y)].Set(ChunkX - 1, Position.Y, Position.Z, 1);
-				Chunks[FVector2D(ChunkID.X - 1, ChunkID.Y)]->UpdateChunkMesh();
-				Chunks[ChunkID]->UpdateChunkMesh();
-			}
-			if(Position.Y >= ChunkY)
-			{
-				NoiseMap[FVector2D(ChunkID.X, ChunkID.Y + 1)].Set(Position.X, 0, Position.Z, 1);
-				Chunks[FVector2D(ChunkID.X, ChunkID.Y + 1)]->UpdateChunkMesh();
-				Chunks[ChunkID]->UpdateChunkMesh();
-			}
-			if(Position.Y < 0)
-			{
-				NoiseMap[FVector2D(ChunkID.X, ChunkID.Y - 1)].Set(Position.X, ChunkY - 1, Position.Z, 1);
-				Chunks[FVector2D(ChunkID.X, ChunkID.Y - 1)]->UpdateChunkMesh();
-				Chunks[ChunkID]->UpdateChunkMesh();
-			}
-		}
-	}
+	BlockEditor->PlaceBlock(Position, ChunkID);
 }
-
-void AMapGenerator::UpdateSurroundingChunkBlocks(FVector2D ChunkID, FVector Position)
-{
-	if(NoiseMap[ChunkID].Get(Position.X + 1, Position.Y, Position.Z) == -1) Chunks[FVector2D(ChunkID.X + 1, ChunkID.Y)]->UpdateChunkMesh();
-	if(NoiseMap[ChunkID].Get(Position.X - 1, Position.Y, Position.Z) == -1) Chunks[FVector2D(ChunkID.X - 1, ChunkID.Y)]->UpdateChunkMesh();
-	if(NoiseMap[ChunkID].Get(Position.X, Position.Y + 1, Position.Z) == -1) Chunks[FVector2D(ChunkID.X, ChunkID.Y + 1)]->UpdateChunkMesh();
-	if(NoiseMap[ChunkID].Get(Position.X, Position.Y - 1, Position.Z) == -1) Chunks[FVector2D(ChunkID.X, ChunkID.Y - 1)]->UpdateChunkMesh();
-}
-
-
 
 void AMapGenerator::DestroyChunks()
 {

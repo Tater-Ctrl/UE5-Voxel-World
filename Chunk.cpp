@@ -13,13 +13,18 @@ AChunk::AChunk()
 	cube = new ACreateCube();
 
 	// Colors for some reason?
-	vertexColors.Init(FLinearColor(0.0f,0.0f,0.0f,1.0f), 3);
+	vertexColors.Init(FLinearColor(0.0f,0.0f,0.0f,0.5), 256);
 
 	// Create new procedural mesh
 	pm = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMesh"));
+	//WaterMesh = CreateObject<UProceduralMeshComponent>(TEXT("ProceduralMesh"));
 	SetRootComponent(pm);
-	pm->CastShadow = false;
+	//WaterMesh->SetupAttachment(pm);
+	
+	pm->CastShadow = true;
 	pm->bUseAsyncCooking = true;
+	//WaterMesh->CastShadow = false;
+	//WaterMesh->bUseAsyncCooking = true;
 	IsActive = true;
 }
 
@@ -53,16 +58,18 @@ void AChunk::CreateChunk()
 		{
 			for(int z = 0; z < *this->chunkZ; ++z)
 			{
-				if(noise->Get(x, y, z) == 0 && z == 88)
-				{
-					cube->BlockVariations(BlockType::Water);
-					cube->Top(x, y, z);
-					continue;
-				}
+				//if(noise->Get(x, y, z) == 0 && z == 88)
+				//{
+				//	cube->BlockVariations(BlockType::Water);
+				//	cube->Top(x, y, z);
+				//	continue;
+				//}
 				
 				if(noise->Get(x, y, z) == 0) continue;
+
+				SetBlockType(noise->Get(x, y, z));
 				
-				noise->Get(x, y, z + 1 ) == BlockType::Air ? cube->BlockVariations(BlockType::Grass) : cube->BlockVariations(BlockType::Dirt);
+				//noise->Get(x, y, z + 1 ) == BlockType::Air ? cube->BlockVariations(BlockType::Grass) : cube->BlockVariations(BlockType::Dirt);
 				
 				// Draw top of block
 				if(noise->Get(x, y, z + 1) == BlockType::Air)
@@ -134,6 +141,19 @@ void AChunk::CreateChunk()
 	// Create the mesh!
 	this->DrawChunk();
 }
+
+void AChunk::SetBlockType(int Sum)
+{
+	if(Sum >= 0) cube->BlockVariations(BlockType::Sand);
+	if(Sum > 30) cube->BlockVariations(BlockType::Dirt);
+	if(Sum > 50 + 30) cube->BlockVariations(BlockType::Sand);
+	if(Sum > 58 + 30) cube->BlockVariations(BlockType::Grass);
+	if(Sum > 63 + 30) cube->BlockVariations(BlockType::Dirt);
+	if(Sum > 65 + 30) cube->BlockVariations(BlockType::Stone);
+	if(Sum > 71 + 30) cube->BlockVariations(BlockType::Dirt);
+	if(Sum > 75 + 30) cube->BlockVariations(BlockType::Grass);
+}
+
 
 
 
