@@ -9,5 +9,5 @@
  */
 enum BlockType
 {
- Air, Grass, Dirt, Stone, Bedrock
+ Air, Grass, Dirt, Stone, Bedrock, Water
 };

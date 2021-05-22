@@ -19,7 +19,7 @@ private:
 	TArray<FLinearColor> vertexColors;
 	
 	int CheckNeighbourChunk(int X, int Y, int Z, int IdX, int IdY);
-	
+
 public:	
 	// Sets default values for this actor's properties
 	AChunk();
@@ -32,6 +32,9 @@ public:
 	int* chunkX;
 	int* chunkY;
 	int* chunkZ;
+
+	UPROPERTY(EditAnywhere, Category="Chunk ID")
+	bool IsActive;
 	
 	UPROPERTY(EditAnywhere, Category="Chunk ID")
 	FVector2D chunkID;
@@ -45,6 +48,6 @@ public:
 	
 	TMap<FVector2D, FMultiArray>* NoiseMap;
 
-	void DrawChunk() const;
+	void DrawChunk();
 	void CreateChunk();
 };

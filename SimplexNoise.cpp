@@ -437,7 +437,7 @@ float SimplexNoise::fractal2D(size_t octaves, float scale, float x, float y) con
     float output = 0.f;
     float denom  = 0.f;
     float frequency = mFrequency;
-    float amplitude = 0.5f;
+    float amplitude = mAmplitude;
 
     for (size_t i = 0; i < octaves; i++) {
         output += (amplitude * noise(x * scale * frequency, y * scale * frequency));
@@ -462,14 +462,14 @@ float SimplexNoise::fractal2D(size_t octaves, float scale, float x, float y) con
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::fractal(size_t octaves, float x, float y, float z) const {
+float SimplexNoise::fractal3D(size_t octaves, float scale, float x, float y, float z) const {
     float output = 0.f;
     float denom  = 0.f;
     float frequency = mFrequency;
     float amplitude = mAmplitude;
 
     for (size_t i = 0; i < octaves; i++) {
-        output += (amplitude * noise(x * frequency, y * frequency, z * frequency));
+        output += (amplitude * noise((x * frequency) * scale, (y * frequency) * scale, (z * frequency) * scale));
         denom += amplitude;
 
         frequency *= mLacunarity;

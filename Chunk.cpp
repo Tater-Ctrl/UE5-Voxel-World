@@ -20,6 +20,7 @@ AChunk::AChunk()
 	SetRootComponent(pm);
 	pm->CastShadow = false;
 	pm->bUseAsyncCooking = true;
+	IsActive = true;
 }
 
 int AChunk::CheckNeighbourChunk(int X, int Y, int Z, int IdX, int IdY)
@@ -29,7 +30,7 @@ int AChunk::CheckNeighbourChunk(int X, int Y, int Z, int IdX, int IdY)
 	return Value;
 }
 
-void AChunk::DrawChunk() const 
+void AChunk::DrawChunk() 
 {
 	pm->CreateMeshSection_LinearColor(0, cube->vertices, cube->triangles, cube->normals, cube->uvs, vertexColors, tangents, true);
 }
@@ -51,7 +52,14 @@ void AChunk::CreateChunk()
 		for(int y = 0; y < *this->chunkY; ++y)
 		{
 			for(int z = 0; z < *this->chunkZ; ++z)
-			{				
+			{
+				if(noise->Get(x, y, z) == 0 && z == 88)
+				{
+					cube->BlockVariations(BlockType::Water);
+					cube->Top(x, y, z);
+					continue;
+				}
+				
 				if(noise->Get(x, y, z) == 0) continue;
 				
 				noise->Get(x, y, z + 1 ) == BlockType::Air ? cube->BlockVariations(BlockType::Grass) : cube->BlockVariations(BlockType::Dirt);

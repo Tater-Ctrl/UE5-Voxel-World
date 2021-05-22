@@ -18,6 +18,8 @@ private:
 	int side = 0;
 	int bottom = 0;
 
+	int offset = 0;
+
 public:	
 	// Sets default values for this actor's properties
 	ACreateCube();

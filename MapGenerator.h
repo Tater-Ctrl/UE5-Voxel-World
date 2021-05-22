@@ -7,6 +7,7 @@
 #include "Chunk.h"
 #include "Kismet/GameplayStatics.h"
 #include "SimplexNoise.h"
+#include "Curves/CurveFloat.h"
 #include "MapGenerator.generated.h"
 
 DECLARE_DELEGATE_OneParam(D_CreateChunkPool, FVector2D)
@@ -30,12 +31,14 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Chunk Parameters")
 	int chunkLoaded = 32;
-	UPROPERTY(EditAnywhere, Category="Chunk Parameters")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Chunk Parameters")
 	int ChunkX = 16;
-	UPROPERTY(EditAnywhere, Category="Chunk Parameters")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Chunk Parameters")
 	int ChunkY = 16;
-	UPROPERTY(EditAnywhere, Category="Chunk Parameters")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Chunk Parameters")
 	int ChunkZ = 256;
+	UPROPERTY(EditAnywhere, Category="Chunk Parameters")
+	UCurveFloat* MapCurve;
 
 	TMap<FVector2D, FMultiArray> NoiseMap;
 	UPROPERTY()
@@ -60,6 +63,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 
+	void UpdateSurroundingChunkBlocks(FVector2D ChunkID, FVector Position);
 	UFUNCTION(BlueprintCallable, Category="Chunk Editing")
 	void BreakBlock(FVector Position, FVector2D ChunkID);
 	UFUNCTION(BlueprintCallable, Category="Chunk Editing")

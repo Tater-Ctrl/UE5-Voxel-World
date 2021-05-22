@@ -14,16 +14,19 @@ void ACreateCube::BlockVariations(BlockType blockType)
 	switch(blockType)
 	{
 		case BlockType::Grass:
-			top = 2; side = 0; bottom = 1;
+			top = 2; side = 0; bottom = 1; offset = 0;
 		break;
 		case BlockType::Dirt:
-			top = 1; side = 1; bottom = 1;
+			top = 1; side = 1; bottom = 1; offset = 0;
 		break;
 		case BlockType::Bedrock:
-			top = 3; side = 3; bottom = 3;
+			top = 3; side = 3; bottom = 3; offset = 0;
+		break;
+		case BlockType::Water:
+			top = 4; side = 4; bottom = 4; offset = 15;
 		break;
 		default:
-			top = 1; side = 1; bottom = 1;
+			top = 1; side = 1; bottom = 1; offset = 0;
 		break;
 			
 	}
@@ -47,10 +50,10 @@ void ACreateCube::Top(int x, int y, int z)
 		normals.Add(FVector(0.0f, 0.0f, 1.0f));
 	}
 
-	vertices.Add(FVector( 0 + (x * cubeSize) , 0 + (y * cubeSize), cubeSize + (z * cubeSize)));
-	vertices.Add(FVector(0 + (x * cubeSize) , cubeSize + (y * cubeSize), cubeSize + (z * cubeSize)));
-	vertices.Add(FVector(cubeSize + (x * cubeSize) , cubeSize + (y * cubeSize), cubeSize + (z * cubeSize)));
-	vertices.Add(FVector(cubeSize + (x * cubeSize) , 0 + (y * cubeSize), cubeSize + (z * cubeSize)));
+	vertices.Add(FVector( 0 + (x * cubeSize) , 0 + (y * cubeSize), cubeSize + (z * cubeSize - offset)));
+	vertices.Add(FVector(0 + (x * cubeSize) , cubeSize + (y * cubeSize), cubeSize + (z * cubeSize - offset)));
+	vertices.Add(FVector(cubeSize + (x * cubeSize) , cubeSize + (y * cubeSize), cubeSize + (z * cubeSize - offset)));
+	vertices.Add(FVector(cubeSize + (x * cubeSize) , 0 + (y * cubeSize), cubeSize + (z * cubeSize - offset)));
 }
 
 void ACreateCube::Bottom(int x, int y, int z)
