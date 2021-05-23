@@ -127,7 +127,7 @@ void ACreateCube::Back(int x, int y, int z)
 	for (int i = 0; i < 4; ++i) {
 		normals.Add(FVector(0.0f, -1.0f, 0.0f));
 	}
-
+	
 	vertices.Add(FVector(0 + (x * (cubeSize)), 0 + (y * cubeSize), 0 + (z * cubeSize)));
 	vertices.Add(FVector(0 + (x * (cubeSize)), 0 + (y * cubeSize), cubeSize + (z * cubeSize)));
 	vertices.Add(FVector(cubeSize + (x * (cubeSize)), 0 + (y * cubeSize), cubeSize + (z * cubeSize)));

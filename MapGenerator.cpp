@@ -66,7 +66,7 @@ void AMapGenerator::CreateChunkNoise(FVector2D Pos)
 	{
 		for(int Y = 0; Y < this->ChunkY; ++Y)
 		{
-			const int Height = ((this->Simplex->fractal2D(4, 0.004f, X + (Pos.X * this->ChunkX), Y + (Pos.Y * this->ChunkY))) + 1) * (this->ChunkZ / 2);
+			const int Height = ((this->Simplex->fractal2D(4, 0.002f, X + (Pos.X * this->ChunkX), Y + (Pos.Y * this->ChunkY))) + 1) * (this->ChunkZ / 2);
 			const int Sum = floor(MapCurve->GetFloatValue(Height)) + 30;
 
 			for(int Z = 0; Z < Sum; ++Z)

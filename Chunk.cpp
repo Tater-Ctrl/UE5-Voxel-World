@@ -58,12 +58,12 @@ void AChunk::CreateChunk()
 		{
 			for(int z = 0; z < *this->chunkZ; ++z)
 			{
-				//if(noise->Get(x, y, z) == 0 && z == 88)
-				//{
-				//	cube->BlockVariations(BlockType::Water);
-				//	cube->Top(x, y, z);
-				//	continue;
-				//}
+				if(noise->Get(x, y, z) == 0 && z == 88)
+				{
+					cube->BlockVariations(BlockType::Water);
+					cube->Top(x, y, z);
+					continue;
+				}
 				
 				if(noise->Get(x, y, z) == 0) continue;
 
@@ -148,10 +148,10 @@ void AChunk::SetBlockType(int Sum)
 	if(Sum > 30) cube->BlockVariations(BlockType::Dirt);
 	if(Sum > 50 + 30) cube->BlockVariations(BlockType::Sand);
 	if(Sum > 58 + 30) cube->BlockVariations(BlockType::Grass);
-	if(Sum > 63 + 30) cube->BlockVariations(BlockType::Dirt);
-	if(Sum > 65 + 30) cube->BlockVariations(BlockType::Stone);
-	if(Sum > 71 + 30) cube->BlockVariations(BlockType::Dirt);
-	if(Sum > 75 + 30) cube->BlockVariations(BlockType::Grass);
+	if(Sum > 76 + 30) cube->BlockVariations(BlockType::Dirt);
+	if(Sum > 78 + 30) cube->BlockVariations(BlockType::Stone);
+	if(Sum > 90 + 30) cube->BlockVariations(BlockType::Dirt);
+	if(Sum > 93 + 30) cube->BlockVariations(BlockType::Grass);
 }
 
 
