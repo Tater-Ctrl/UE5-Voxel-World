@@ -38,9 +38,14 @@ private:
 	TArray<FLinearColor> VertexColors;
 	TArray<FProcMeshTangent> Tangents;
 
+	UPROPERTY()
 	UProceduralMeshComponent* Mesh;
 	FMultiArray* Noise;
+
+	void AddIndices();
+	void AddNormals(const FVector Nor);
 	
 	void CreateTop(int Z);
+	void CreateFront(int Z);
 	void CreateRight(int X);
 };
