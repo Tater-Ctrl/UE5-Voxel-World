@@ -28,7 +28,7 @@ public:
 	int BlockSize = 60;
 
 	TMap<FVector2D, FMultiArray>* NoiseMap;
-	void CreateGreedyChunk(FVector2D ChunkID, FVector Pos);
+	void CreateGreedyChunk(FVector2D ChunkID);
 
 private:
 	TArray<FVector> Vertices;
@@ -42,10 +42,12 @@ private:
 	UProceduralMeshComponent* Mesh;
 	FMultiArray* Noise;
 
-	void AddIndices();
+	void AddIndices(bool Reverse);
 	void AddNormals(const FVector Nor);
 	
 	void CreateTop(int Z);
-	void CreateFront(int Z);
+	void CreateFront(int Y);
+	void CreateBack(int Y);
 	void CreateRight(int X);
+	void CreateLeft(int X);
 };

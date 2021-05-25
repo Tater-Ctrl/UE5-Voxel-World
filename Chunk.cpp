@@ -51,6 +51,7 @@ void AChunk::CreateChunk()
 	cube->ClearMeshData();
 	
 	noise = &NoiseMap->operator[](chunkID);
+	double start = FPlatformTime::Seconds();
 	
 	for(int x = 0; x < *this->chunkX; ++x)
 	{
@@ -140,6 +141,10 @@ void AChunk::CreateChunk()
 	}
 	// Create the mesh!
 	this->DrawChunk();
+
+	double end = FPlatformTime::Seconds();
+	
+	//UE_LOG(LogTemp, Warning, TEXT("%f ms"), (end-start) * 1000);
 }
 
 void AChunk::SetBlockType(int Sum)

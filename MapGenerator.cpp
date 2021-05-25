@@ -43,7 +43,28 @@ void AMapGenerator::InitChunks()
 	}
 }
 
-void AMapGenerator::TestGreedyMesh()
+void AMapGenerator::InitGreedyMesh()
+{
+	for(int Y = -chunkLoaded / 2; Y < chunkLoaded / 2; ++Y)
+	{
+		for(int X = -chunkLoaded / 2; X < chunkLoaded / 2; ++X)
+		{
+			if(!NoiseMap.Find(FVector2D(X + 1, Y))) CreateChunkNoise(FVector2D(X + 1, Y));
+			if(!NoiseMap.Find(FVector2D(X - 1, Y))) CreateChunkNoise(FVector2D(X - 1, Y));
+			if(!NoiseMap.Find(FVector2D(X, Y + 1))) CreateChunkNoise(FVector2D(X, Y + 1));
+			if(!NoiseMap.Find(FVector2D(X, Y - 1))) CreateChunkNoise(FVector2D(X, Y - 1));
+
+			if(!NoiseMap.Find(FVector2D(X, Y)))
+			{
+				CreateChunkNoise(FVector2D(X, Y));
+			}
+			
+			CreateGreedyMesh(FVector2D(X, Y));
+		}
+	}
+}
+
+void AMapGenerator::CreateGreedyMesh(FVector2D ChunkID)
 {
 	if(MapCurve == nullptr)
 	{
@@ -53,14 +74,16 @@ void AMapGenerator::TestGreedyMesh()
 	
 	CreateChunkNoise(FVector2D(0, 0));
 
-	AGreedyMesh* GreedyChunk = GetWorld()->SpawnActor<AGreedyMesh>(FVector(0, 0, 0), FRotator(0.f, 0.f, 0.f));
+	AGreedyMesh* GreedyChunk = GetWorld()->SpawnActor<AGreedyMesh>(FVector(ChunkID.X * 960.f, ChunkID.Y * 960.f, 0), FRotator(0.f, 0.f, 0.f));
 
 	GreedyChunk->NoiseMap = &NoiseMap;
 	GreedyChunk->ChunkX = &ChunkX;
 	GreedyChunk->ChunkY = &ChunkY;
 	GreedyChunk->ChunkZ = &ChunkZ;
 	
-	GreedyChunk->CreateGreedyChunk(FVector2D(0,0), FVector(0, 0, 0));
+	GreedyChunk->CreateGreedyChunk(ChunkID);
+
+	GreedyMesh.Add(ChunkID, GreedyChunk);
 }
 
 void AMapGenerator::CreateChunk(const FVector2D Pos)
@@ -106,12 +129,12 @@ void AMapGenerator::CreateChunkNoise(const FVector2D Pos)
 
 void AMapGenerator::BreakBlock(const FVector Position, const FVector2D ChunkID)
 {
-	BlockEditor->BreakBlock(Position, ChunkID);
+	//BlockEditor->BreakBlock(Position, ChunkID);
 }
 
 void AMapGenerator::PlaceBlock(const FVector Position, const FVector2D ChunkID)
 {
-	BlockEditor->PlaceBlock(Position, ChunkID);
+	//BlockEditor->PlaceBlock(Position, ChunkID);
 }
 
 void AMapGenerator::DestroyChunks()
@@ -128,6 +151,7 @@ void AMapGenerator::DestroyChunks()
 	}
 	
 	Chunks.Empty();
+	GreedyMesh.Empty();
 	NoiseMap.Empty();
 }
 
@@ -167,57 +191,58 @@ void AMapGenerator::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Success!"));
 	}
 
-	InitChunks();
+	//InitChunks();
+	InitGreedyMesh();
 }
 
 void AMapGenerator::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	//If Player is active then update position around it
-	if(Player)
-	{
-		const FVector2D Position = FVector2D(floor(Player->GetActorLocation().X / 960), floor(Player->GetActorLocation().Y / 960));
-	
-		if(Position != ChunkPosition)
-		{
-			ChunkPosition = Position;
-			UpdateChunks(Position);
-		}
-	}
-	if(!HideChunkQueue.IsEmpty())
-	{
-		// Remove 5 items from queue per tick or until empty
-		for(int i = 0; i < 5 && !HideChunkQueue.IsEmpty(); ++i)
-		{
-			const int X = Player->GetActorLocation().X + (chunkLoaded / 2);
-			const int Y = Player->GetActorLocation().Y + (chunkLoaded / 2);
-			const int NX = Player->GetActorLocation().X - (chunkLoaded / 2);
-			const int NY = Player->GetActorLocation().Y - (chunkLoaded / 2);
-
-			AChunk* Tmp = nullptr;
-			HideChunkQueue.Dequeue(Tmp);
-	
-			if(Tmp->chunkID.X > X || Tmp->chunkID.X < NX || Tmp->chunkID.Y > Y || Tmp->chunkID.Y < NY)
-			{
-				Tmp->SetActorHiddenInGame(true);
-				Tmp->SetActorEnableCollision(false);
-			} else
-			{
-				Tmp->IsActive = true;
-			}
-		}
-	}
-
-	if(!CreateChunkQueue.IsEmpty())
-	{
-		AChunk* Tmp = nullptr;
-		CreateChunkQueue.Dequeue(Tmp);
-		if(!Chunks.Find(Tmp->chunkID))
-		{
-			Tmp->CreateChunk();
-			Chunks.Add(Tmp->chunkID, Tmp);
-		}
-	}
+	// if(Player)
+	// {
+	// 	const FVector2D Position = FVector2D(floor(Player->GetActorLocation().X / 960), floor(Player->GetActorLocation().Y / 960));
+	//
+	// 	if(Position != ChunkPosition)
+	// 	{
+	// 		ChunkPosition = Position;
+	// 		UpdateChunks(Position);
+	// 	}
+	// }
+	// if(!HideChunkQueue.IsEmpty())
+	// {
+	// 	// Remove 5 items from queue per tick or until empty
+	// 	for(int i = 0; i < 5 && !HideChunkQueue.IsEmpty(); ++i)
+	// 	{
+	// 		const int X = Player->GetActorLocation().X + (chunkLoaded / 2);
+	// 		const int Y = Player->GetActorLocation().Y + (chunkLoaded / 2);
+	// 		const int NX = Player->GetActorLocation().X - (chunkLoaded / 2);
+	// 		const int NY = Player->GetActorLocation().Y - (chunkLoaded / 2);
+	//
+	// 		AChunk* Tmp = nullptr;
+	// 		HideChunkQueue.Dequeue(Tmp);
+	//
+	// 		if(Tmp->chunkID.X > X || Tmp->chunkID.X < NX || Tmp->chunkID.Y > Y || Tmp->chunkID.Y < NY)
+	// 		{
+	// 			Tmp->SetActorHiddenInGame(true);
+	// 			Tmp->SetActorEnableCollision(false);
+	// 		} else
+	// 		{
+	// 			Tmp->IsActive = true;
+	// 		}
+	// 	}
+	// }
+	//
+	// if(!CreateChunkQueue.IsEmpty())
+	// {
+	// 	AChunk* Tmp = nullptr;
+	// 	CreateChunkQueue.Dequeue(Tmp);
+	// 	if(!Chunks.Find(Tmp->chunkID))
+	// 	{
+	// 		Tmp->CreateChunk();
+	// 		Chunks.Add(Tmp->chunkID, Tmp);
+	// 	}
+	// }
 }
 
 void AMapGenerator::UpdateChunks(FVector2D Pos)

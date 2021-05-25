@@ -73,7 +73,9 @@ public:
 	void PlaceBlock(FVector Position, FVector2D ChunkID);
 
 	UFUNCTION(CallInEditor, Category="Greedy Chunk")
-	void TestGreedyMesh();
+	void InitGreedyMesh();
+	
+	void CreateGreedyMesh(FVector2D ChunkID);
 
 	void EditorDrawChunk(const FVector2D Pos);
 	void DrawChunk(const FVector2D Pos);
