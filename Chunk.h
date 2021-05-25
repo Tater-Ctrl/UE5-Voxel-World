@@ -24,7 +24,6 @@ public:
 	// Sets default values for this actor's properties
 	AChunk();
 
-	//UMaterialInterface* mat;
 	UPROPERTY(VisibleAnywhere, Category = "MyProceduralMesh")
 	UProceduralMeshComponent* pm;
 	ACreateCube* cube;

@@ -18,6 +18,12 @@ AMapGenerator::AMapGenerator()
 
 void AMapGenerator::InitChunks()
 {
+	if(MapCurve == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Missing MapCurve from MapGenerator! Returning"));
+		return;
+	}
+	
 	for(int X = -chunkLoaded / 2; X < chunkLoaded / 2; ++X)
 	{
 		for(int Y = -chunkLoaded / 2; Y < chunkLoaded / 2; ++Y)
@@ -35,6 +41,26 @@ void AMapGenerator::InitChunks()
 			EditorDrawChunk(FVector2D(X, Y));
 		}
 	}
+}
+
+void AMapGenerator::TestGreedyMesh()
+{
+	if(MapCurve == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Missing MapCurve from MapGenerator! Returning"));
+		return;
+	}
+	
+	CreateChunkNoise(FVector2D(0, 0));
+
+	AGreedyMesh* GreedyChunk = GetWorld()->SpawnActor<AGreedyMesh>(FVector(0, 0, 0), FRotator(0.f, 0.f, 0.f));
+
+	GreedyChunk->NoiseMap = &NoiseMap;
+	GreedyChunk->ChunkX = &ChunkX;
+	GreedyChunk->ChunkY = &ChunkY;
+	GreedyChunk->ChunkZ = &ChunkZ;
+	
+	GreedyChunk->CreateGreedyChunk(FVector2D(0,0), FVector(0, 0, 0));
 }
 
 void AMapGenerator::CreateChunk(const FVector2D Pos)
@@ -58,7 +84,7 @@ void AMapGenerator::CreateChunk(const FVector2D Pos)
 	});
 }
 
-void AMapGenerator::CreateChunkNoise(FVector2D Pos)
+void AMapGenerator::CreateChunkNoise(const FVector2D Pos)
 {
 	FMultiArray Arr(this->ChunkX, this->ChunkY, this->ChunkZ);
 			
@@ -66,12 +92,12 @@ void AMapGenerator::CreateChunkNoise(FVector2D Pos)
 	{
 		for(int Y = 0; Y < this->ChunkY; ++Y)
 		{
-			const int Height = ((this->Simplex->fractal2D(4, 0.002f, X + (Pos.X * this->ChunkX), Y + (Pos.Y * this->ChunkY))) + 1) * (this->ChunkZ / 2);
+			const int Height = (this->Simplex->fractal2D(4, 0.002f, X + (Pos.X * this->ChunkX), Y + (Pos.Y * this->ChunkY)) + 1) * (this->ChunkZ / 2);
 			const int Sum = floor(MapCurve->GetFloatValue(Height)) + 30;
 
 			for(int Z = 0; Z < Sum; ++Z)
 			{
-				Arr.Set(X, Y, Z, Sum);
+				Arr.Set(X, Y, Z, 1);
 			}
 		}
 	}
@@ -94,7 +120,15 @@ void AMapGenerator::DestroyChunks()
 	{
 		e.Value->Destroy();
 	}
+
+	// Temporary to test out greedy meshes
+	for(auto& e : GreedyMesh)
+	{
+		e.Value->Destroy();
+	}
+	
 	Chunks.Empty();
+	NoiseMap.Empty();
 }
 
 void AMapGenerator::EditorDrawChunk(const FVector2D Pos)

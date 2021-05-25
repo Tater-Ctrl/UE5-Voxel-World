@@ -9,6 +9,7 @@
 #include "SimplexNoise.h"
 #include "CaveGenerator.h"
 #include "BlockEditor.h"
+#include "GreedyMesh.h"
 #include "MapGenerator.generated.h"
 
 UCLASS()
@@ -43,6 +44,8 @@ public:
 	TMap<FVector2D, FMultiArray> NoiseMap;
 	UPROPERTY()
 	TMap<FVector2D, AChunk*> Chunks;
+	UPROPERTY()
+	TMap<FVector2D, AGreedyMesh*> GreedyMesh;
 
 	SimplexNoise* Simplex;
 	ABlockEditor* BlockEditor;
@@ -68,6 +71,9 @@ public:
 	void BreakBlock(FVector Position, FVector2D ChunkID);
 	UFUNCTION(BlueprintCallable, Category="Chunk Editing")
 	void PlaceBlock(FVector Position, FVector2D ChunkID);
+
+	UFUNCTION(CallInEditor, Category="Greedy Chunk")
+	void TestGreedyMesh();
 
 	void EditorDrawChunk(const FVector2D Pos);
 	void DrawChunk(const FVector2D Pos);
