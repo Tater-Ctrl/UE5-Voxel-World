@@ -38,16 +38,20 @@ public:
 	void SetBlockType(int Sum);
 	void UpdateChunkMesh();
 
-	TSharedPtr<FMultiArray> NoiseMiddle;
+	TMap<FVector2D, FMultiArray>* NoiseMap;
+
+	FMultiArray* NoiseMiddle;
 	FMultiArray* NoiseFront;
 	FMultiArray* NoiseBack;
 	FMultiArray* NoiseLeft;
 	FMultiArray* NoiseRight;
 
-	TSharedPtr<TMap<FVector2D, FMultiArray>, ESPMode::ThreadSafe> NoiseMap;
-
+	UFUNCTION()
 	void DrawChunk();
+	UFUNCTION()
 	void CreateChunk();
+	UFUNCTION()
 	void CreateChunkAsync();
+	UFUNCTION()
 	void ChunkInit();
 };

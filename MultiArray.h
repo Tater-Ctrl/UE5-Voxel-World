@@ -13,9 +13,13 @@ struct FMultiArray
 {
 	GENERATED_BODY()
 private:
+	UPROPERTY()
 	int Rows = 0;
+	UPROPERTY()
 	int Columns = 0;
+	UPROPERTY()
 	int Pillars = 0;
+	UPROPERTY()
 	TArray<int> Array;
 public:
 	FMultiArray()

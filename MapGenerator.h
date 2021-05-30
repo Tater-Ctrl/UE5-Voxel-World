@@ -48,7 +48,7 @@ public:
 	TMap<FVector2D, AGreedyMesh*> GreedyMesh;
 
 	SimplexNoise* Simplex;
-
+	
 	ABlockEditor* BlockEditor;
 	
 	UPROPERTY()

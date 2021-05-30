@@ -158,7 +158,7 @@ void AMapGenerator::EditorDrawChunk(const FVector2D Pos)
 	// Assign the X, Y, Z width pointers of chunk
 	newChunk->ChunkID = Pos;
 	newChunk->pm->SetMaterial(0, this->TextureAtlas);
-	newChunk->NoiseMap = MakeShareable(&this->NoiseMap);
+	newChunk->NoiseMap = &this->NoiseMap;
 
 	newChunk->ChunkInit();
 	newChunk->CreateChunk();
@@ -172,7 +172,7 @@ void AMapGenerator::DrawChunk(const FVector2D Pos)
 	// Assign the X, Y, Z width pointers of chunk
 	newChunk->ChunkID = Pos;
 	newChunk->pm->SetMaterial(0, this->TextureAtlas);
-	newChunk->NoiseMap = MakeShareable(&this->NoiseMap);
+	newChunk->NoiseMap = &this->NoiseMap;
 	newChunk->ChunkInit();
 	
 	CreateChunkQueue.Enqueue(newChunk);

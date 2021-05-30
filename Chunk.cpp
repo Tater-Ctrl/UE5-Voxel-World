@@ -45,18 +45,12 @@ void AChunk::UpdateChunkMesh()
 
 void AChunk::ChunkInit()
 {
-	NoiseMiddle = MakeShareable(&NoiseMap->operator[](ChunkID));
+	NoiseMiddle = &NoiseMap->operator[](ChunkID);
 	NoiseFront = &NoiseMap->operator[](FVector2D(ChunkID.X, ChunkID.Y + 1));
 	NoiseBack = &NoiseMap->operator[](FVector2D(ChunkID.X, ChunkID.Y - 1));
 	NoiseLeft = &NoiseMap->operator[](FVector2D(ChunkID.X + 1, ChunkID.Y));
 	NoiseRight = &NoiseMap->operator[](FVector2D(ChunkID.X - 1, ChunkID.Y));
-
-	if(NoiseMap->Find(ChunkID))
-	{
-		
-	}
 }
-
 
 void AChunk::CreateChunk()
 {
@@ -164,7 +158,7 @@ void AChunk::CreateChunkAsync()
 	}
 
 	AsyncTask(ENamedThreads::AnyBackgroundHiPriTask, [=] ()
-	{		
+	{						
 		for(int X = 0; X < CHUNK_WIDTH; ++X)
 		{
 			for(int Y = 0; Y < CHUNK_WIDTH; ++Y)
@@ -191,7 +185,7 @@ void AChunk::CreateChunkAsync()
 					if(NoiseMiddle->Get(X, Y + 1, Z) <= BlockType::Air)
 					{
 						// Check neighbour chunk if it has a block or not
-						if(NoiseMiddle->Get(X, Y + 1, Z) < BlockType::Air)
+						if(NoiseMiddle->Get(X, Y + 1, Z) < BlockType::Air && NoiseMap->Find(FVector2D(ChunkID.X, ChunkID.Y + 1)))
 						{
 							// if neighbour block is Air, display tile face
 							if(NoiseFront->Get(X, 0, Z) == BlockType::Air)
@@ -208,7 +202,7 @@ void AChunk::CreateChunkAsync()
 					if(NoiseMiddle->Get(X, Y - 1, Z) <= BlockType::Air)
 					{
 						// Check neighbour chunk if it has a block or not
-						if(NoiseMiddle->Get(X, Y - 1, Z) < BlockType::Air)
+						if(NoiseMiddle->Get(X, Y - 1, Z) < BlockType::Air && NoiseMap->Find(FVector2D(ChunkID.X, ChunkID.Y - 1)))
 						{
 							// if neighbour chunk block is Air, display tile face
 							if(NoiseBack->Get(X, CHUNK_WIDTH - 1, Z) == BlockType::Air)
@@ -223,7 +217,7 @@ void AChunk::CreateChunkAsync()
 					if(NoiseMiddle->Get(X + 1, Y, Z) <= BlockType::Air)
 					{
 						// Check neighbour chunk if it has a block or not
-						if(NoiseMiddle->Get(X + 1, Y, Z) < BlockType::Air)
+						if(NoiseMiddle->Get(X + 1, Y, Z) < BlockType::Air && NoiseMap->Find(FVector2D(ChunkID.X + 1, ChunkID.Y)))
 						{
 							// if neighbour chunk block is Air, display tile face
 							if(NoiseLeft->Get(0, Y, Z) == BlockType::Air)
@@ -238,7 +232,7 @@ void AChunk::CreateChunkAsync()
 					if(NoiseMiddle->Get(X - 1, Y, Z) <= BlockType::Air)
 					{
 						// Check neighbour chunk if it has a block or not
-						if(NoiseMiddle->Get(X - 1, Y, Z) < BlockType::Air)
+						if(NoiseMiddle->Get(X - 1, Y, Z) < BlockType::Air && NoiseMap->Find(FVector2D(ChunkID.X - 1, ChunkID.Y)))
 						{
 							// if neighbour chunk block is Air, display tile face
 							if(NoiseRight->Get(CHUNK_WIDTH - 1, Y, Z) == BlockType::Air)
