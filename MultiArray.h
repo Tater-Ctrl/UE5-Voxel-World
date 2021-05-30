@@ -3,18 +3,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MultiArray.generated.h"
 
 /**
  * 
  */
+USTRUCT()
 struct FMultiArray
 {
+	GENERATED_BODY()
 private:
 	int Rows = 0;
 	int Columns = 0;
 	int Pillars = 0;
 	TArray<int> Array;
 public:
+	FMultiArray()
+	{
+		this->Array.Init(0, 0);
+		this->Rows = 0;
+		this->Columns = 0;
+		this->Pillars = 0;
+	}
 	FMultiArray(const int X, const int Y, const int Z)
 	{
 		this->Array.Init(0, X * Y * Z);

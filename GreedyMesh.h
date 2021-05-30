@@ -6,6 +6,7 @@
 #include "MultiArray.h"
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
+#include "MapVariables.h"
 #include "GreedyMesh.generated.h"
 
 /**
@@ -21,11 +22,6 @@ public:
 	AGreedyMesh();
 	~AGreedyMesh();
 
-	int* ChunkX;
-	int* ChunkY;
-	int* ChunkZ;
-
-	int BlockSize = 60;
 
 	TMap<FVector2D, FMultiArray>* NoiseMap;
 	void CreateGreedyChunk(FVector2D ChunkID);
@@ -38,7 +34,7 @@ private:
 	TArray<FLinearColor> VertexColors;
 	TArray<FProcMeshTangent> Tangents;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = "MyProceduralMesh")
 	UProceduralMeshComponent* Mesh;
 	FMultiArray* Noise;
 

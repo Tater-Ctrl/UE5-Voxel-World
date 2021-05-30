@@ -10,6 +10,7 @@
 #include "CaveGenerator.h"
 #include "BlockEditor.h"
 #include "GreedyMesh.h"
+#include "MapVariables.h"
 #include "MapGenerator.generated.h"
 
 UCLASS()
@@ -32,15 +33,14 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Chunk Parameters")
 	int chunkLoaded = 32;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Chunk Parameters")
-	int ChunkX = 16;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Chunk Parameters")
-	int ChunkY = 16;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Chunk Parameters")
-	int ChunkZ = 256;
+
+	UPROPERTY(EditAnywhere, Category="Chunk Parameters")
+	bool EnableGreedyMesh;
+	
 	UPROPERTY(EditAnywhere, Category="Chunk Parameters")
 	UCurveFloat* MapCurve;
 
+	UPROPERTY()
 	TMap<FVector2D, FMultiArray> NoiseMap;
 	UPROPERTY()
 	TMap<FVector2D, AChunk*> Chunks;
@@ -48,14 +48,14 @@ public:
 	TMap<FVector2D, AGreedyMesh*> GreedyMesh;
 
 	SimplexNoise* Simplex;
+
 	ABlockEditor* BlockEditor;
-	ACreateCube* Cube;
 	
 	UPROPERTY()
 	UMaterialInterface* TextureAtlas;
 	UPROPERTY()
 	AActor* Player;
-	
+	UPROPERTY()
 	FVector2D ChunkPosition;
 	
 	UFUNCTION(CallInEditor, Category="Chunk Parameters")
@@ -68,9 +68,9 @@ public:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION(BlueprintCallable, Category="Chunk Editing")
-	void BreakBlock(FVector Position, FVector2D ChunkID);
+	void BreakBlock(FVector Position, FVector HitNormal);
 	UFUNCTION(BlueprintCallable, Category="Chunk Editing")
-	void PlaceBlock(FVector Position, FVector2D ChunkID);
+	void PlaceBlock(FVector Position, FVector HitNormal);
 
 	UFUNCTION(CallInEditor, Category="Greedy Chunk")
 	void InitGreedyMesh();

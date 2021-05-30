@@ -7,6 +7,7 @@
 #include "CreateCube.h"
 #include "ProceduralMeshComponent.h"
 #include "MultiArray.h"
+#include "MapVariables.h"
 #include "Chunk.generated.h"
 
 UCLASS()
@@ -27,27 +28,26 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "MyProceduralMesh")
 	UProceduralMeshComponent* pm;
 	ACreateCube* cube;
-	
-	int* chunkX;
-	int* chunkY;
-	int* chunkZ;
 
 	UPROPERTY(EditAnywhere, Category="Chunk ID")
 	bool IsActive;
 	
 	UPROPERTY(EditAnywhere, Category="Chunk ID")
-	FVector2D chunkID;
-
-	UPROPERTY(EditAnywhere, Category="Distance to Player")
-	int ChunkDistance = 0;
-
+	FVector2D ChunkID;
+	
 	void SetBlockType(int Sum);
 	void UpdateChunkMesh();
 
-	FMultiArray* noise;
-	
-	TMap<FVector2D, FMultiArray>* NoiseMap;
+	TSharedPtr<FMultiArray> NoiseMiddle;
+	FMultiArray* NoiseFront;
+	FMultiArray* NoiseBack;
+	FMultiArray* NoiseLeft;
+	FMultiArray* NoiseRight;
+
+	TSharedPtr<TMap<FVector2D, FMultiArray>, ESPMode::ThreadSafe> NoiseMap;
 
 	void DrawChunk();
 	void CreateChunk();
+	void CreateChunkAsync();
+	void ChunkInit();
 };
